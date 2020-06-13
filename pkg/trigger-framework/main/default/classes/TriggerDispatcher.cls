@@ -14,7 +14,7 @@ public class TriggerDispatcher {
      */
 
     @SuppressWarnings('PMD.CognitiveComplexity')
-    public static void run(Object handler, System.TriggerOperation triggerEvent) {
+    public static void dispatch(Object handler, System.TriggerOperation triggerEvent) {
 
         if (handler instanceOf Disableable) {
             if (((Disableable) handler).isDisabled()) {
