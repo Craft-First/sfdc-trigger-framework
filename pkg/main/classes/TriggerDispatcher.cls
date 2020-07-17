@@ -23,8 +23,8 @@ public class TriggerDispatcher {
 
         if (handler instanceOf Disableable) {
             if (((Disableable) handler).isDisabled()) {
-            return;
-          }
+                return;
+            }
         }
 
         switch on triggerEvent {
