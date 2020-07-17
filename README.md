@@ -1,5 +1,7 @@
 # Lightweight Trigger Framework for Salesforce
 
+[![Build Status](https://dev.azure.com/dxatscaleanz/Craft-First/_apis/build/status/Craft-First.sfdc-trigger-framework?branchName=master)](https://dev.azure.com/dxatscaleanz/Craft-First/_build/latest?definitionId=27&branchName=master)
+
 This library allows for a cleaner code when writing trigger.
 
 It avoid writing boilerplate code in the triggers, providing the
