@@ -9,15 +9,17 @@ This library defines several interfaces that can be implemented in isolation.
 
 ## Example
 
-**AccountTrigger.trigger**
+### AccountTrigger.trigger
+
 ~~~java
 trigger AccountTrigger on Account (before insert, before update, before delete, after insert, after update, after delete, after undelete) {
     TriggerDispatcher.dispatch(new SampleAccountTriggerHandler(), Trigger.operationType);
 }
 ~~~
 
-**SampleAccountTriggerHandler.cls**
-```java
+### SampleAccountTriggerHandler.cls
+
+~~~java
 public with sharing class SampleAccountTriggerHandler implements Disableable,
                                                                  BeforeInsert,
                                                                  BeforeUpdate,
@@ -59,7 +61,7 @@ public with sharing class SampleAccountTriggerHandler implements Disableable,
     }
 }
 
-```
+~~~
 
 ## `Disableable` interface
 
@@ -69,5 +71,6 @@ dispatcher wether or not it should be executed.
 ## Why so many interfaces
 
 Several reasons
+
 * By looking at the declaration of the handler, one can clearly see what events it is responding to
 * It avoid having empty methods in the body of the handler

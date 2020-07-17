@@ -1,4 +1,13 @@
+/**
+ * @description Generic Trigger Event Dispatcher. Responsible for dispatching trigger
+ * events to the relevant trigger handler.
+ *
+ * This method has a high complexity because of the hardening of the handler
+ * calls
+ */
+@SuppressWarnings('PMD.StdCyclomaticComplexity, PMD.CyclomaticComplexity')
 public class TriggerDispatcher {
+
     /**
      * @description fires handler methods depending on trigger context
      * call this method from your trigger passing in an instance of
@@ -7,13 +16,9 @@ public class TriggerDispatcher {
      * Disableable if the trigger can be disabled
      * AfterInsert, AfterDelete, AfterUndelete, AfterUpdate
      * BeforeInsert, BeforeDelete, BeforeUpdate
-     * This method has a high complexity because of the hardening of the handler
-     * calls
      * @param handler the trigger handler to use
      * @param triggerEvent any of the above trigger event
      */
-
-    @SuppressWarnings('PMD.CognitiveComplexity')
     public static void dispatch(Object handler, System.TriggerOperation triggerEvent) {
 
         if (handler instanceOf Disableable) {
