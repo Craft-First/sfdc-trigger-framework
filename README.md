@@ -1,4 +1,4 @@
-# Lightweight trigger framework
+# Lightweight Trigger Framework for Salesforce
 
 This library allows for a cleaner code when writing trigger.
 
