@@ -1,0 +1,51 @@
+name: $(Rev:r) #Increment count for every Major Release
+
+trigger:
+  - master
+
+pr:
+  branches:
+    include:
+    - master
+
+  paths:
+    exclude:
+    - ./README.md
+
+resources:
+  repositories:
+    - repository: Templates
+      type: github
+      name: Craft-First/Pipeline-Templates
+      endpoint: Craft-First
+      ref: refs/heads/configuration
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+  - template: staticanalyze.yml@Templates
+    parameters:
+      repositoryToCheckout: sfdc-trigger-framework
+      directory:
+        - 'pkg'
+      stageCondition: "or(eq(variables[\'build.Reason\'], \'PullRequest\'), eq(variables[\'build.Reason\'], \'Manual\'))"
+
+  - template: prscratchorg.yml@Templates
+    parameters:
+      repositoryToCheckout: sfdc-trigger-framework
+      directory:
+        - 'pkg'
+      service_connection: $(salesforce_connection)
+      configFile: 'config/project-scratch-def.json'
+      stageCondition: "or(eq(variables[\'build.Reason\'], \'PullRequest\'), eq(variables[\'build.Reason\'], \'Manual\'))"
+
+  - template: unlockedpackagebuild.yml@Templates
+    parameters:
+      repositoryToCheckout: sfdc-trigger-framework
+      package: trigger-framework
+      service_connection: $(packaging_org)
+      configFile: 'config/project-scratch-def.json'
+      stageCondition: "and(eq(variables[\'build.sourceBranch\'], \'refs/heads/master\'), ne(variables[\'build.Reason\'], \'PullRequest\'))"
+      directory:
+        -'pkg'
