@@ -1,0 +1,96 @@
+# Unique name for this workflow
+name: sfpowerscripts build
+
+# Definition when the workflow should run
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            - master
+
+# Jobs to be executed
+jobs:
+    build:
+        name: Build packages
+        runs-on: ubuntu-latest
+        container: dxatscale/sfpowerscripts
+        steps:
+            # Checkout the code
+            - name: 'Checkout source code'
+              uses: actions/checkout@v2
+              with:
+                  fetch-depth: 0
+
+              # Authenticate dev hub
+            - name: 'Authenticate Dev Hub'
+              run: |
+                  echo "${SALESFORCE_JWT_SECRET_KEY}" > ./JWT_KEYFILE
+                  sfdx auth:jwt:grant -u ${{ secrets.DEVHUB_USERNAME }} -i ${{ secrets.DEVHUB_CLIENT_ID }} -f ./JWT_KEYFILE -a devhub -r https://login.salesforce.com
+                  rm -f ./JWT_KEYFILE
+              env:
+                  SALESFORCE_JWT_SECRET_KEY: ${{ secrets.DEVHUB_SERVER_KEY }}
+
+              # Create all packages
+            - name: 'Create packages'
+              id: sfpowerscripts-build
+              run: 'sfdx sfpowerscripts:orchestrator:build -v devhub -f config/project-scratch-def.json --branch master'
+
+              # Publish artifacts
+            - uses: actions/upload-artifact@v2
+              with:
+                  name: validated-artifacts
+                  path: artifacts
+
+    upgradeCheck:
+        name: upgrade and check package
+        runs-on: ubuntu-latest
+        container: dxatscale/sfpowerscripts
+        needs: build
+        steps:
+
+            # Checkout the code
+            - name: 'Checkout source code'
+              uses: actions/checkout@v2
+              with:
+                  fetch-depth: 0
+
+
+            # Authenticate dev hub
+            - name: 'Authenticate Dev Hub'
+              run: |
+                  echo "${SALESFORCE_JWT_SECRET_KEY}" > ./JWT_KEYFILE
+                  sfdx auth:jwt:grant -u ${{ secrets.DEVHUB_USERNAME }} -i ${{ secrets.DEVHUB_CLIENT_ID }} -f ./JWT_KEYFILE -a devhub -r https://login.salesforce.com
+              env:
+                  SALESFORCE_JWT_SECRET_KEY: ${{ secrets.DEVHUB_SERVER_KEY }}
+
+            # Create scratch org
+            - name: Create scratch org
+              run: 'sfdx force:org:create -f config/project-scratch-def.json -a scratch-org -s -d 1 -v devhub'
+
+            # Fetch the latest released package  
+            - name: Set NPM registry
+              run: |
+                  npm set registry https://npm.pkg.github.com
+            - name: Authenticate to NPM registry
+              run: |
+                  echo "//npm.pkg.github.com/:_authToken=${AUTH_TOKEN}" >> ~/.npmrc
+              env:
+                  AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: 'Fetch artifacts from NPM registry'
+              run: 'sfdx sfpowerscripts:artifacts:fetch -p releaseDefinition.yml -d baseline-artifacts --npm --scope Craft-First'
+
+            # deploy baseline scratch org
+            - name: 'Install fetched artifacts into scratch org'
+              run: 'sfdx sfpowerscripts:orchestrator:deploy --artifactdir baseline-artifacts -u scratch-org'
+
+            # Download Latest Artifacts
+            - name: Download Artifacts
+              uses: actions/download-artifact@v2
+              with:
+                  name: validated-artifacts
+                  path: artifacts
+
+            # Install all new packages into scratch org
+            - name: 'Install fetched artifacts into scratch org'
+              run: 'sfdx sfpowerscripts:orchestrator:deploy -u scratch-org'

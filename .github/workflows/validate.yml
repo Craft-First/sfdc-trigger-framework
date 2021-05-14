@@ -36,7 +36,11 @@ jobs:
 
             # Create Scratch Org
             - name: 'Create New Scratch Org'
-              run: sfdx force:org:create -f config/default-scratch-def.json -a scratch-org -s -d 1 -v devhub
+              run: sfdx force:org:create -f config/project-scratch-def.json -a scratch-org -s -d 1 -v devhub
+
+            # Install Package Dependicies to Org
+            - name: 'Install Package Dependencies to Org'
+              run: 'sfdx sfpowerkit:package:dependencies:install -u scratch-org -v devhub -r'
 
             # Validate Against Org
             - name: 'Push source to scratch org'
