@@ -3,6 +3,8 @@
 #
 
 package.xml
+packages\trigger-framework\README.md
+packages\trigger-bypass-strategy\README.md
 
 # LWC configuration files
 **/jsconfig.json
