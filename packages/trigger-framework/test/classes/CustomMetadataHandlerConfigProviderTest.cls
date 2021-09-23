@@ -1,8 +1,8 @@
-@isTest
-@SuppressWarnings('sf:CommentRequired')
+@IsTest
 private class CustomMetadataHandlerConfigProviderTest {
-    @SuppressWarnings('sf:MethodNamingConventions, sf:AvoidCatchingGenericException')
-    @isTest static void should_throw_an_exception_for_unknown_handler() {
+
+    @IsTest 
+    private static void should_throw_an_exception_for_unknown_handler() {
         final HandlerConfigProvider configProvider = new CustomMetadataHandlerConfigProvider();
 
         try {
