@@ -2,25 +2,29 @@
     "packageDirectories": [
         {
             "path": "packages/trigger-framework",
-            "package": "trigger-framework",
+            "package": "sfdc-trigger-framework",
             "versionNumber": "1.0.0.NEXT",
             "versionName": "trigger-framework-1.0",
             "default": true
         },
         {
             "path": "packages/trigger-bypass-strategy",
-            "package": "trigger-bypass-strategy",
+            "package": "sfdc-trigger-bypass-strategy",
             "versionNumber": "1.0.0.NEXT",
             "versionName": "trigger-bypass-strategy-1.0",
             "dependencies": [
                 {
-                    "package": "trigger-framework",
+                    "package": "sfdc-trigger-framework",
                     "versionNumber": "1.0.0.LATEST"
                 }
             ]
         }
     ],
-  "namespace": "",
-  "sfdcLoginUrl": "https://login.salesforce.com",
-  "sourceApiVersion": "51.0"
+    "namespace": "",
+    "sfdcLoginUrl": "https://login.salesforce.com",
+    "sourceApiVersion": "51.0",
+    "packageAliases": {
+        "sfdc-trigger-framework": "0Ho1P000000fxTESAY",
+        "sfdc-trigger-bypass-strategy": "0Ho1P000000fxTJSAY"
+    }
 }
