@@ -44,10 +44,11 @@ public with sharing class CustomMetadataHandlerConfigProvider implements Handler
      * @return a trigger handler configuration used to instantiate the trigger
      *  handler dynamically
      */
+    @TestVisible
     private TriggerHandlerConfig buildConfiguration(TriggerHandler__mdt config) {
         return new TriggerHandlerConfig.Builder()
-                    .triggerHandler(config.HandlerClass__c)
-                    .description(config.HandlerDescription__c)
-                    .build();
+            .triggerHandler(config.HandlerClass__c)
+            .description(config.HandlerDescription__c)
+            .build();
     }
 }
