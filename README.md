@@ -1,11 +1,19 @@
 # Lightweight trigger framework
 
-This library allows for a cleaner code when writing trigger.
+![Build](https://github.com/Craft-First/sfdc-trigger-framework/actions/workflows/build.yml/badge.svg)
+![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/nbatterham/37875c31d8b3c3c04cf1f1980778a67d/raw/trigger-framework-test.json)
 
-It avoid writing boilerplate code in the triggers, providing the
-beginning of a clear separation of concern.
+Lightweight metadata driven trigger framework for Salesforce.
+
+## Motivation
+
+There are many trigger frameworks out there that look to overcomplicate how we handle dml changes on our records. This library allows us   to avoid writing boilerplate code in the triggers, providing the beginning of a clear separation of concern.
 
 This library defines several interfaces that can be implemented in isolation.
+## Installation Urls <a id="installation-url"></a>
+
+- [Production/Developer](https://login.salesforce.com/packaging/installPackage.apexp?p0=04t5f000000NpsuAAC)
+- [Sandbox](https://test.salesforce.com/packaging/installPackage.apexp?p0=04t5f000000NpsuAAC)
 
 ## Example
 

@@ -1,96 +1,87 @@
 # Unique name for this workflow
-name: sfpowerscripts build
+name: Package Build
 
 # Definition when the workflow should run
 on:
-    workflow_dispatch:
-    push:
-        branches:
-            - master
+  workflow_dispatch:
+  push:
+    branches:
+      - master
 
 # Jobs to be executed
 jobs:
-    build:
-        name: Build packages
-        runs-on: ubuntu-latest
-        container: dxatscale/sfpowerscripts
-        steps:
-            # Checkout the code
-            - name: 'Checkout source code'
-              uses: actions/checkout@v2
-              with:
-                  fetch-depth: 0
+  build:
+    name: Build package
+    runs-on: ubuntu-latest
+    container: dxatscale/sfpowerscripts
+    steps:
+      # Checkout the code
+      - name: "Checkout source code"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
-              # Authenticate dev hub
-            - name: 'Authenticate Dev Hub'
-              run: |
-                  echo "${SALESFORCE_JWT_SECRET_KEY}" > ./JWT_KEYFILE
-                  sfdx auth:jwt:grant -u ${{ secrets.DEVHUB_USERNAME }} -i ${{ secrets.DEVHUB_CLIENT_ID }} -f ./JWT_KEYFILE -a devhub -r https://login.salesforce.com
-                  rm -f ./JWT_KEYFILE
-              env:
-                  SALESFORCE_JWT_SECRET_KEY: ${{ secrets.DEVHUB_SERVER_KEY }}
+      # Copy Auth URL to file
+      - name: "Copy Auth URL to file"
+        shell: bash
+        run: |
+          echo "${{ secrets.DEVHUB_AUTH_URL }}" > ./AUTH_URL
+      # Authenticate dev hub
+      - name: "Authenicate Org"
+        run: "sfdx auth:sfdxurl:store -f ./AUTH_URL -a devhub"
 
-              # Create all packages
-            - name: 'Create packages'
-              id: sfpowerscripts-build
-              run: 'sfdx sfpowerscripts:orchestrator:build -v devhub -f config/project-scratch-def.json --branch master'
+      # Create Package
+      - id: createPackage
+        name: "Create Package"
+        run: |
+          sfdx force:package:version:create -c -d packages/trigger-framework/ -f config/project-scratch-def.json -x -v devhub -w 300 --json > packageResult.json
+          result=$(jq .status packageResult.json)
+          test $result -eq 0
+          packageVersionId=$(jq .result.SubscriberPackageVersionId packageResult.json)
+          echo "PACKAGE_VERSION_ID=${packageVersionId}" >> $GITHUB_ENV
+          packageId=$(jq .result.Package2Id packageResult.json)
+          echo "PACKAGE_ID=${packageId}" >> $GITHUB_ENV
+      - name: "Fetch Test Results"
+        run: |
+          testCoverage=$( sfdx force:package:version:report -p ${{ env.PACKAGE_VERSION_ID }} -v devhub --json | jq .result.CodeCoverage.apexCodeCoveragePercentage )
+          echo "TEST_COVERAGE=${testCoverage}" >> $GITHUB_ENV
+      - name: Publish Test Results
+        uses: schneegans/dynamic-badges-action@v1.1.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: ${{ secrets.GIST_ID }}
+          filename: trigger-framework-test.json
+          label: Code Coverage
+          message: ${{ env.TEST_COVERAGE }}%
+          color: green
+          namedLogo: "Salesforce"
+          isError: ${{ env.TEST_COVERAGE < 75}}
 
-              # Publish artifacts
-            - uses: actions/upload-artifact@v2
-              with:
-                  name: validated-artifacts
-                  path: artifacts
+      # Promote Package and create release
+      - name: Promote Package
+        if: contains(github.event.head_commit.message, 'release:')
+        run: |
+          sfdx force:package:version:promote -n -p ${{ env.PACKAGE_VERSION_ID }} -v devhub
+      - name: Get Version Details
+        if: contains(github.event.head_commit.message, 'release:')
+        run: |
+          sfdx force:package:version:list -v devhub -p ${{ env.PACKAGE_ID }} --json | jq . > packageList.json
+          versionId=$(jq '.result[] | select(.SubscriberPackageVersionId==${{ env.PACKAGE_VERSION_ID }}) | .Version ' packageList.json | tr -d '"')
+          echo "TAG=${versionId}" >> $GITHUB_ENV
+      - name: Create Release
+        if: contains(github.event.head_commit.message, 'release:')
+        uses: ncipollo/release-action@v1
+        with:
+          generateReleaseNotes: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ env.TAG }}
 
-    upgradeCheck:
-        name: upgrade and check package
-        runs-on: ubuntu-latest
-        container: dxatscale/sfpowerscripts
-        needs: build
-        steps:
-
-            # Checkout the code
-            - name: 'Checkout source code'
-              uses: actions/checkout@v2
-              with:
-                  fetch-depth: 0
-
-
-            # Authenticate dev hub
-            - name: 'Authenticate Dev Hub'
-              run: |
-                  echo "${SALESFORCE_JWT_SECRET_KEY}" > ./JWT_KEYFILE
-                  sfdx auth:jwt:grant -u ${{ secrets.DEVHUB_USERNAME }} -i ${{ secrets.DEVHUB_CLIENT_ID }} -f ./JWT_KEYFILE -a devhub -r https://login.salesforce.com
-              env:
-                  SALESFORCE_JWT_SECRET_KEY: ${{ secrets.DEVHUB_SERVER_KEY }}
-
-            # Create scratch org
-            - name: Create scratch org
-              run: 'sfdx force:org:create -f config/project-scratch-def.json -a scratch-org -s -d 1 -v devhub'
-
-            # Fetch the latest released package  
-            - name: Set NPM registry
-              run: |
-                  npm set registry https://npm.pkg.github.com
-            - name: Authenticate to NPM registry
-              run: |
-                  echo "//npm.pkg.github.com/:_authToken=${AUTH_TOKEN}" >> ~/.npmrc
-              env:
-                  AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-            - name: 'Fetch artifacts from NPM registry'
-              run: 'sfdx sfpowerscripts:artifacts:fetch -p releaseDefinition.yml -d baseline-artifacts --npm --scope Craft-First'
-
-            # deploy baseline scratch org
-            - name: 'Install fetched artifacts into scratch org'
-              run: 'sfdx sfpowerscripts:orchestrator:deploy --artifactdir baseline-artifacts -u scratch-org'
-
-            # Download Latest Artifacts
-            - name: Download Artifacts
-              uses: actions/download-artifact@v2
-              with:
-                  name: validated-artifacts
-                  path: artifacts
-
-            # Install all new packages into scratch org
-            - name: 'Install fetched artifacts into scratch org'
-              run: 'sfdx sfpowerscripts:orchestrator:deploy -u scratch-org'
+      - name: Update README
+        if: contains(github.event.head_commit.message, 'release:')
+        run: |
+          sed -i -e "s/04t[[:alnum:]]\{15\}/${{ env.PACKAGE_VERSION_ID }}/" README.md
+          git config user.name "build.bot"
+          git config user.email "<>"
+          git add README.md
+          git commit -m "updating README with new version"
+          git push
