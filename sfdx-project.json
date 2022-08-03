@@ -24,7 +24,7 @@
     "sfdcLoginUrl": "https://login.salesforce.com",
     "sourceApiVersion": "51.0",
     "packageAliases": {
-        "sfdc-trigger-framework": "0Ho1P000000fxTESAY",
-        "sfdc-trigger-bypass-strategy": "0Ho1P000000fxTJSAY"
+        "sfdc-trigger-framework": "0Ho5f000000GmyxCAC",
+        "sfdc-trigger-bypass-strategy": "0Ho5f000000Gmz2CAC"
     }
 }
