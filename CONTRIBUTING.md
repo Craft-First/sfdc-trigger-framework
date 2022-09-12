@@ -1,7 +1,7 @@
 # Contributing to sfdc-trigger-framework
 
 First and foremost, **thank you**! We appreciate that you want to contribute to
-sfdc-feature-management, your time is valuable, and your contributions mean a
+**sfdc-trigger-framework**, your time is valuable, and your contributions mean a
 lot to us.
 
 ## Important! <a id="important"></a>
