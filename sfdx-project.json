@@ -3,7 +3,7 @@
         {
             "path": "trigger-framework",
             "package": "sfdc-trigger-framework",
-            "versionNumber": "1.0.2.NEXT",
+            "versionNumber": "1.0.3.NEXT",
             "versionName": "trigger-framework-1.0",
             "default": true
         }
@@ -12,7 +12,6 @@
     "sfdcLoginUrl": "https://login.salesforce.com",
     "sourceApiVersion": "51.0",
     "packageAliases": {
-        "sfdc-trigger-framework": "0Ho5f000000GmyxCAC",
-        "sfdc-trigger-bypass-strategy": "0Ho5f000000Gmz2CAC"
+        "sfdc-trigger-framework": "0Ho5f000000GmyxCAC"
     }
 }
