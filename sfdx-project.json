@@ -1,23 +1,11 @@
 {
     "packageDirectories": [
         {
-            "path": "packages/trigger-framework",
+            "path": "trigger-framework",
             "package": "sfdc-trigger-framework",
             "versionNumber": "1.0.2.NEXT",
             "versionName": "trigger-framework-1.0",
             "default": true
-        },
-        {
-            "path": "packages/trigger-bypass-strategy",
-            "package": "sfdc-trigger-bypass-strategy",
-            "versionNumber": "1.0.1.NEXT",
-            "versionName": "trigger-bypass-strategy-1.0",
-            "dependencies": [
-                {
-                    "package": "sfdc-trigger-framework",
-                    "versionNumber": "1.0.0.LATEST"
-                }
-            ]
         }
     ],
     "namespace": "",
