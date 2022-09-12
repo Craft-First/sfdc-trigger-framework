@@ -34,7 +34,7 @@ jobs:
       - id: createPackage
         name: "Create Package"
         run: |
-          sfdx force:package:version:create -c -d packages/trigger-framework/ -f config/project-scratch-def.json -x -v devhub -w 300 --json > packageResult.json
+          sfdx force:package:version:create -c -d trigger-framework/ -f config/project-scratch-def.json -x -v devhub -w 300 --json > packageResult.json
           result=$(jq .status packageResult.json)
           test $result -eq 0
           packageVersionId=$(jq .result.SubscriberPackageVersionId packageResult.json)

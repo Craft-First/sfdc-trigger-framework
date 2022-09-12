@@ -3,10 +3,7 @@
 #
 
 package.xml
-packages/trigger-framework/README.md
-packages/trigger-bypass-strategy/README.md
-
-packages/trigger-framework/sample
+trigger-framework/README.md
 
 # LWC configuration files
 **/jsconfig.json
