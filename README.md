@@ -12,8 +12,8 @@ There are many trigger frameworks out there that look to overcomplicate how we h
 This library defines several interfaces that can be implemented in isolation.
 ## Installation Urls <a id="installation-url"></a>
 
-- [Production/Developer](https://login.salesforce.com/packaging/installPackage.apexp?p0=04t5f000000NpsuAAC)
-- [Sandbox](https://test.salesforce.com/packaging/installPackage.apexp?p0=04t5f000000NpsuAAC)
+- [Production/Developer](https://login.salesforce.com/packaging/installPackage.apexp?p0=04t5f000000NrjHAAS)
+- [Sandbox](https://test.salesforce.com/packaging/installPackage.apexp?p0=04t5f000000NrjHAAS)
 
 ## Example
 
